@@ -6,58 +6,72 @@ import '../../../core/router/routes.dart';
 import '../../../core/ui.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../settings/presentation/widgets/language_list.dart';
+import 'steps/profile_step.dart';
+import 'steps/semester_step.dart';
 import 'widgets/onboarding_top_bar.dart';
 
-/// Figma 14 · Onboarding (step 1: language and city).
-class OnboardingScreen extends ConsumerWidget {
+/// Figma 14 · Onboarding: language → name and city → semester.
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  static const _steps = 3;
+  static const _titles = ['Welcome to Nizam', 'About you', 'Your semester'];
+  static const _intros = [
+    'One planner for classes, prayer, study, training and food. Choose your language.',
+    'Prayer times are calculated on your phone for your city, so they work offline.',
+    'Your faculty timetable is already in the app. Check it and you are ready.',
+  ];
+
+  int _step = 0;
+
+  void _finish() {
+    ref.read(settingsProvider.notifier).completeOnboarding();
+    context.go(Routes.today);
+  }
+
+  void _next() => _step == _steps - 1 ? _finish() : setState(() => _step++);
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
-    final s = ref.watch(settingsProvider);
-
-    void finish() {
-      ref.read(settingsProvider.notifier).completeOnboarding();
-      context.go(Routes.today);
-    }
-
     return AppPage(
       bottom: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppButton(label: 'Continue', onPressed: finish),
+          AppButton(label: _step == _steps - 1 ? 'Start' : 'Continue', onPressed: _next),
           TextButton(
-            onPressed: finish,
-            child: Text('Set up later in Settings', style: context.text.body.tint(c.textSecondary)),
+            onPressed: _step == 0 ? _finish : () => setState(() => _step--),
+            child: Text(
+              _step == 0 ? 'Set up later in Settings' : 'Back',
+              style: context.text.body.tint(c.textSecondary),
+            ),
           ),
         ],
       ),
       children: [
-        const OnboardingTopBar(step: 1, steps: 3),
+        OnboardingTopBar(step: _step + 1, steps: _steps),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Eyebrow('Step 1 of 3'),
+            Eyebrow('Step ${_step + 1} of $_steps'),
             const VGap(4),
-            Text('Welcome to Nizam', style: context.text.display),
+            Text(_titles[_step], style: context.text.display),
             const VGap(6),
-            Text(
-              'Choose your language and city. Prayer times are calculated on your phone, '
-              'so they work offline.',
-              style: context.text.body.tint(c.textSecondary),
-            ),
+            Text(_intros[_step], style: context.text.body.tint(c.textSecondary)),
           ],
         ),
-        const LanguageList(),
-        AppCard(
-          padding: 0,
-          child: DividedColumn(
-            children: [
-              ValueTile(title: 'City for prayer times', value: s.city),
-              ValueTile(title: 'Tonight I usually sleep at', value: s.sleepPlace.label),
-            ],
-          ),
+        AnimatedSwitcher(
+          duration: AppDurations.normal,
+          child: switch (_step) {
+            0 => const LanguageList(key: ValueKey(0)),
+            1 => const ProfileStep(key: ValueKey(1)),
+            _ => const SemesterStep(key: ValueKey(2)),
+          },
         ),
       ],
     );

@@ -6,11 +6,20 @@ import '../../domain/food_models.dart';
 /// [🍴] Breakfast / Eggs, bread · 07:10        420 kcal
 /// When nothing is logged, shows "Not logged yet" with a + icon.
 class MealRow extends StatelessWidget {
-  const MealRow({super.key, required this.type, required this.entries, required this.onAdd});
+  const MealRow({
+    super.key,
+    required this.type,
+    required this.entries,
+    required this.onAdd,
+    required this.onOpen,
+  });
 
   final MealType type;
   final List<MealEntry> entries;
   final VoidCallback onAdd;
+
+  /// Opens the list of entries (to delete one).
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +33,7 @@ class MealRow extends StatelessWidget {
     return AppTile(
       title: type.label,
       subtitle: subtitle,
-      onTap: logged ? null : onAdd,
+      onTap: logged ? onOpen : onAdd,
       leading: Container(
         width: context.dp(38),
         height: context.dp(38),

@@ -28,4 +28,10 @@ class SettingsController extends Notifier<AppSettings> {
   void setCoachDeparture(bool v) => _update(state.copyWith(coachDeparture: v));
   void setExamCountdown(bool v) => _update(state.copyWith(examCountdown: v));
   void completeOnboarding() => _update(state.copyWith(onboarded: true));
+  void setUserName(String v) => _update(state.copyWith(userName: v.trim()));
+  void setCity(String v) => _update(state.copyWith(city: v));
+  void setPlaces({required String near, required String far}) =>
+      _update(state.copyWith(nearPlace: near.trim(), farPlace: far.trim()));
+  void setCommute({required int minutes, required List<String> coachTimes}) =>
+      _update(state.copyWith(commuteMinutes: minutes, coachTimes: coachTimes));
 }

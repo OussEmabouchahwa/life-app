@@ -25,10 +25,19 @@ class StudyScreen extends ConsumerWidget {
         ScreenHeader(
           eyebrow: '${ref.watch(courseProgressProvider).length} courses this semester',
           title: 'Study',
+          // "+" adds what the open tab is about.
           trailing: IconBoxButton(
             icon: AppIcons.plus,
-            tooltip: 'Add',
-            onPressed: () => context.push(Routes.addEvent),
+            tooltip: switch (tab) {
+              StudyTab.exams => 'Add exam',
+              StudyTab.revision => 'Plan a study session',
+              StudyTab.grades => 'Grade calculator',
+            },
+            onPressed: () => context.push(switch (tab) {
+              StudyTab.exams => Routes.examForm,
+              StudyTab.revision => Routes.addStudySession,
+              StudyTab.grades => Routes.gradeCalculator,
+            }),
           ),
         ),
         UnderlineTabs<StudyTab>(

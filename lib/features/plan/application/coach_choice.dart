@@ -1,15 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/plan_repository.dart';
+import '../../../core/storage/local_store.dart';
+import '../../settings/application/settings_controller.dart';
 
-final coachTimesProvider = Provider<List<String>>((ref) => ref.watch(planRepositoryProvider).coachTimes());
+/// Departures from the far sleeping place (edited in Settings › Commute).
+final coachTimesProvider = Provider<List<String>>(
+  (ref) => ref.watch(settingsProvider.select((s) => s.coachTimes)),
+);
 
-/// Coach the user plans to take tomorrow morning.
-final coachChoiceProvider = NotifierProvider<CoachChoice, String>(CoachChoice.new);
+/// Coach the user plans to take. Remembered on the device.
+final coachChoiceProvider = NotifierProvider<CoachChoice, String?>(CoachChoice.new);
 
-class CoachChoice extends Notifier<String> {
+class CoachChoice extends Notifier<String?> {
+  static const _key = 'coach_choice';
+
   @override
-  String build() => ref.watch(coachTimesProvider).first;
+  String? build() {
+    final times = ref.watch(coachTimesProvider);
+    final saved = ref.read(sharedPreferencesProvider).getString(_key);
+    return times.contains(saved) ? saved : times.firstOrNull;
+  }
 
-  void select(String time) => state = time;
+  void select(String time) {
+    state = time;
+    ref.read(sharedPreferencesProvider).setString(_key, time);
+  }
 }

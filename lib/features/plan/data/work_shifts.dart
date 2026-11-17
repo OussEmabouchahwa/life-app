@@ -1,15 +1,58 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/storage/stored_list_controller.dart';
+import '../../../core/utils/time_format.dart';
+
+/// A weekly work shift (repeats every week on [weekday]).
 @immutable
-class WorkShift {
-  const WorkShift(this.day, this.hours);
+class WorkShift implements Stored {
+  const WorkShift({
+    required this.id,
+    required this.weekday,
+    required this.startMinutes,
+    required this.endMinutes,
+    this.place = '',
+  });
 
-  final String day;
-  final String hours;
+  static const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  @override
+  final String id;
+
+  /// DateTime.monday … DateTime.sunday
+  final int weekday;
+  final int startMinutes;
+
+  /// May be smaller than [startMinutes] for a shift past midnight.
+  final int endMinutes;
+  final String place;
+
+  int get lengthMinutes => (endMinutes - startMinutes) % (24 * 60);
+  String get dayName => dayNames[weekday - 1];
+  String get hours => '${TimeFormat.minutes(startMinutes)} – ${TimeFormat.minutes(endMinutes)}';
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'weekday': weekday,
+    'start': startMinutes,
+    'end': endMinutes,
+    'place': place,
+  };
+
+  factory WorkShift.fromJson(Map<String, dynamic> j) => WorkShift(
+    id: j['id'] as String,
+    weekday: j['weekday'] as int,
+    startMinutes: j['start'] as int,
+    endMinutes: j['end'] as int,
+    place: j['place'] as String? ?? '',
+  );
 }
 
-/// Demo shifts until the user enters their own.
-final workShiftsProvider = Provider<List<WorkShift>>(
-  (ref) => const [WorkShift('Thu', '17:00 – 21:00'), WorkShift('Sat', '09:00 – 15:00')],
-);
+class WorkShiftsController extends StoredListController<WorkShift> {
+  @override
+  String get storageKey => 'work_shifts_v1';
+
+  @override
+  WorkShift fromJson(Map<String, dynamic> json) => WorkShift.fromJson(json);
+}

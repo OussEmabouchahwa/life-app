@@ -4,20 +4,34 @@ import 'package:intl/intl.dart';
 import '../../../../core/ui.dart';
 import '../../domain/study_models.dart';
 
-/// [31 OCT] Databases / Prof… / 🕘 09:00 · Written     (in 5 days)
+/// [17 NOV] Subject / Written · Salle 4-3 / 🕘 09:00 · 1 h 30     (in 5 days)
 class ExamCard extends StatelessWidget {
-  const ExamCard({super.key, required this.exam, required this.today});
+  const ExamCard({super.key, required this.exam, required this.today, this.onTap});
 
   final Exam exam;
   final DateTime today;
+  final VoidCallback? onTap;
+
+  String get _countdown {
+    final days = exam.start.dateOnly.difference(today).inDays;
+    return switch (days) {
+      < 0 => 'Done',
+      0 => 'Today',
+      1 => 'Tomorrow',
+      _ => 'in $days days',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final locale = Localizations.localeOf(context).languageCode;
-    final days = exam.date.difference(today).inDays;
+    final days = exam.start.dateOnly.difference(today).inDays;
+    final meta = [exam.type.label, if (exam.room.isNotEmpty) exam.room].join(' · ');
+
     return AppCard(
       padding: 14,
+      onTap: onTap,
       child: Row(
         children: [
           Container(
@@ -29,8 +43,8 @@ class ExamCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Text(exam.date.day.toString().padLeft(2, '0'), style: context.text.timeLarge),
-                Eyebrow(DateFormat.MMM(locale).format(exam.date)),
+                Text(exam.start.day.toString().padLeft(2, '0'), style: context.text.timeLarge),
+                Eyebrow(DateFormat.MMM(locale).format(exam.start)),
               ],
             ),
           ),
@@ -39,8 +53,13 @@ class ExamCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(exam.subject, style: context.text.bodyStrong),
-                Text(exam.detail, style: context.text.bodySmall.tint(c.textSecondary)),
+                Text(
+                  exam.subject,
+                  style: context.text.bodyStrong,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(meta, style: context.text.bodySmall.tint(c.textSecondary)),
                 const VGap(4),
                 Row(
                   children: [
@@ -48,9 +67,8 @@ class ExamCard extends StatelessWidget {
                     const HGap(4),
                     Flexible(
                       child: Text(
-                        exam.when,
+                        '${TimeFormat.hm(exam.start)} · ${TimeFormat.length(Duration(minutes: exam.minutes))}',
                         style: context.text.caption.tint(c.textSecondary),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -58,7 +76,8 @@ class ExamCard extends StatelessWidget {
               ],
             ),
           ),
-          SoftTag(label: 'in $days days', warning: days <= 5),
+          const HGap(8),
+          SoftTag(label: _countdown, warning: days >= 0 && days <= 3),
         ],
       ),
     );

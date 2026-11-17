@@ -30,7 +30,7 @@ class NextPrayerCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Eyebrow('Next prayer', color: muted),
-                    Text(next.time.prayer.label, style: context.text.display.tint(c.onBrand)),
+                    Text(next.time.label, style: context.text.display.tint(c.onBrand)),
                   ],
                 ),
               ),

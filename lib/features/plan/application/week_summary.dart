@@ -42,8 +42,7 @@ class DaySummary {
 /// One summary per day of the current week.
 final weekSummaryProvider = Provider<List<DaySummary>>(
   (ref) => [
-    for (final d in ref.watch(currentWeekProvider))
-      DaySummary(day: d, items: ref.watch(itemsForDayProvider(d))),
+    for (final d in ref.watch(planWeekProvider)) DaySummary(day: d, items: ref.watch(itemsForDayProvider(d))),
   ],
 );
 

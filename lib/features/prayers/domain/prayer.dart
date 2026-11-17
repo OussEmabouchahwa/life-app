@@ -24,6 +24,11 @@ class PrayerTime {
   static const window = Duration(minutes: 24);
 
   DateTime get windowEnd => time.add(window);
+
+  /// Friday's Dhuhr is Jumu'a.
+  bool get isJumua => prayer == Prayer.dhuhr && time.weekday == DateTime.friday;
+
+  String get label => isJumua ? 'Jumu’a' : prayer.label;
 }
 
 /// Next prayer and how long until it.

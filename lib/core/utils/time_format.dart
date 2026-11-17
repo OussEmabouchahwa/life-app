@@ -5,6 +5,9 @@ abstract final class TimeFormat {
   /// 07:10
   static String hm(DateTime t) => '${_two(t.hour)}:${_two(t.minute)}';
 
+  /// 07:10 from minutes after midnight.
+  static String minutes(int m) => '${_two(m ~/ 60 % 24)}:${_two(m % 60)}';
+
   /// 01:24 (minutes:seconds)
   static String ms(Duration d) => '${_two(d.inMinutes.remainder(60))}:${_two(d.inSeconds.remainder(60))}';
 

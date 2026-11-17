@@ -3,21 +3,27 @@ import 'package:flutter/material.dart';
 import '../../../../core/ui.dart';
 import '../../domain/training_models.dart';
 
-/// Exercise with its set bubbles and weight vs last week.
+/// Exercise with its set bubbles, planned weight and the last time it was done.
 class ExerciseCard extends StatelessWidget {
-  const ExerciseCard({super.key, required this.exercise});
+  const ExerciseCard({super.key, required this.exercise, this.lastBest});
 
   final Exercise exercise;
 
-  String get _delta => switch (exercise.deltaKg) {
-    > 0 => '+${formatKg(exercise.deltaKg)} vs last week',
-    < 0 => '${formatKg(exercise.deltaKg)} vs last week',
-    _ => 'Same as last week',
-  };
+  /// Heaviest set from the last session with this exercise, if any.
+  final LoggedSet? lastBest;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final last = lastBest;
+    final delta = last == null ? null : exercise.weightKg - last.weightKg;
+    final note = switch (delta) {
+      null => 'Not done yet',
+      > 0 => '+${formatKg(delta)} vs last time',
+      < 0 => '${formatKg(delta)} vs last time',
+      _ => 'Same as last time',
+    };
+
     return AppCard(
       padding: 15,
       child: Row(
@@ -41,7 +47,7 @@ class ExerciseCard extends StatelessWidget {
             ),
           ),
           const HGap(8),
-          // At most 30 % of the screen; the delta wraps instead of squeezing the sets.
+          // At most 30 % of the screen; the note wraps instead of squeezing the sets.
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: context.wp(0.3)),
             child: Column(
@@ -49,12 +55,14 @@ class ExerciseCard extends StatelessWidget {
               children: [
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: ValueWithUnit(value: formatKg(exercise.weightKg), unit: 'kg'),
+                  child: exercise.weightKg == 0
+                      ? Text('Body', style: context.text.timeLarge)
+                      : ValueWithUnit(value: formatKg(exercise.weightKg), unit: 'kg'),
                 ),
                 Text(
-                  _delta,
+                  note,
                   textAlign: TextAlign.end,
-                  style: context.text.caption.tint(exercise.deltaKg > 0 ? c.brand : c.textSecondary).bold,
+                  style: context.text.caption.tint((delta ?? 0) > 0 ? c.brand : c.textSecondary).bold,
                 ),
               ],
             ),

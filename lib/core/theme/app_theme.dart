@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 import 'app_text_styles.dart';
@@ -31,7 +30,8 @@ abstract final class AppTheme {
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: c.bgBase,
-      fontFamily: AppTextStyles.useGoogleFonts ? GoogleFonts.manrope().fontFamily : null,
+      fontFamily: AppTextStyles.sansFamily,
+      fontFamilyFallback: const [AppTextStyles.arabicFamily],
       dividerTheme: DividerThemeData(color: c.line, thickness: 1, space: 1),
       splashColor: c.brand.withValues(alpha: 0.06),
       highlightColor: c.brand.withValues(alpha: 0.04),

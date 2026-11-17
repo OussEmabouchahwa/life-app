@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/providers/clock_provider.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/ui.dart';
-import '../../plan/data/work_shifts.dart';
+import '../../plan/application/plan_controller.dart';
 import '../application/timetable_providers.dart';
 import 'widgets/session_details_sheet.dart';
 import 'widgets/session_kind_style.dart';

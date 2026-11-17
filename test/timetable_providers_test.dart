@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nizam/core/providers/clock_provider.dart';
+import 'package:nizam/core/storage/local_store.dart';
 import 'package:nizam/features/plan/application/plan_controller.dart';
 import 'package:nizam/features/timetable/application/timetable_providers.dart';
 import 'package:nizam/features/timetable/data/timetable_parser.dart';
 import 'package:nizam/features/timetable/data/timetable_repository.dart';
 import 'package:nizam/features/timetable/domain/class_session.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FileRepo implements TimetableRepository {
   @override
@@ -17,8 +19,11 @@ class _FileRepo implements TimetableRepository {
 
 /// Container with the real timetable and a fixed "now": Tue 10 Nov 2026, 12:00.
 Future<ProviderContainer> _container() async {
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
   final c = ProviderContainer(
     overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
       timetableRepositoryProvider.overrideWithValue(_FileRepo()),
       nowProvider.overrideWithValue(DateTime(2026, 11, 10, 12)),
     ],

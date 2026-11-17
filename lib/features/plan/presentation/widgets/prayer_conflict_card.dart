@@ -35,14 +35,12 @@ class PrayerConflictCard extends StatelessWidget {
             children: [
               Icon(AppIcons.alert, size: context.dp(AppSizes.icon), color: c.danger),
               const HGap(8),
-              Expanded(
-                child: Text('Clashes with ${prayer.prayer.label} prayer', style: context.text.bodyStrong),
-              ),
+              Expanded(child: Text('Clashes with ${prayer.label} prayer', style: context.text.bodyStrong)),
             ],
           ),
           const VGap(8),
           Text(
-            '${prayer.prayer.label} is ${TimeFormat.hm(prayer.time)}–$moveTo and your event runs '
+            '${prayer.label} is ${TimeFormat.hm(prayer.time)}–$moveTo and your event runs '
             '${TimeFormat.hm(eventStart)}–${TimeFormat.hm(eventEnd)}.',
             style: context.text.bodySmall.tint(c.textSecondary),
           ),

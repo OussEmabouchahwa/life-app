@@ -1,83 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/routes.dart';
 import '../../../core/ui.dart';
 import '../application/add_meal_controller.dart';
-import '../data/food_repository.dart';
+import '../application/food_diary_controller.dart';
 import '../domain/food_models.dart';
 import 'widgets/food_search_field.dart';
 import 'widgets/selected_food_card.dart';
 
-/// Search text, kept here because only this screen uses it.
-final _foodQueryProvider = NotifierProvider.autoDispose<_FoodQuery, String>(_FoodQuery.new);
-
-class _FoodQuery extends Notifier<String> {
-  @override
-  String build() => '';
-
-  void set(String q) => state = q.trim().toLowerCase();
-}
-
-final _foodResultsProvider = Provider.autoDispose<List<Food>>((ref) {
-  final q = ref.watch(_foodQueryProvider);
-  final all = ref.watch(foodRepositoryProvider).catalogue();
-  return q.isEmpty ? all.skip(1).toList() : all.where((f) => f.name.toLowerCase().contains(q)).toList();
-});
-
-/// Figma 10 · Add meal.
+/// Figma 10 · Add meal. `foodId` preselects a food (after a barcode scan).
 class AddMealScreen extends ConsumerWidget {
-  const AddMealScreen({super.key});
+  const AddMealScreen({super.key, this.foodId});
+
+  final String? foodId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
-    final s = ref.watch(addMealProvider);
-    final ctrl = ref.read(addMealProvider.notifier);
-    final query = ref.watch(_foodQueryProvider);
+    final provider = addMealProvider(foodId);
+    final s = ref.watch(provider);
+    final ctrl = ref.read(provider.notifier);
+    final ramadan = ref.watch(foodSettingsProvider).mode == FoodMode.ramadan;
+    final results = _results(ref.watch(allFoodsProvider), ref.watch(recentFoodNamesProvider), s.query);
 
     return AppPage(
       bottom: AppButton(
-        label: 'Add ${s.macros.kcal.round()} kcal to ${s.type.label.toLowerCase()}',
+        label: s.food == null
+            ? 'Choose a food'
+            : 'Add ${s.macros.kcal.round()} kcal to ${s.type.label.toLowerCase()}',
         icon: AppIcons.check,
-        onPressed: () {
-          ctrl.confirm();
-          Navigator.of(context).pop();
-        },
+        onPressed: s.food == null
+            ? null
+            : () {
+                ctrl.confirm();
+                Navigator.of(context).pop();
+              },
       ),
       children: [
         ScreenHeader(eyebrow: '${s.type.label} · Today', title: 'Add meal', showBack: true),
         ChoicePillRow<MealType>(
-          values: MealType.values,
+          values: ramadan ? MealType.ramadan : MealType.standard,
           selected: s.type,
           labelOf: (t) => t.label,
           onChanged: ctrl.setType,
           spacing: 6,
         ),
-        FoodSearchField(onChanged: ref.read(_foodQueryProvider.notifier).set),
-        SelectedFoodCard(
-          food: s.food,
-          grams: s.grams,
-          onMinus: () => ctrl.changeGrams(-1),
-          onPlus: () => ctrl.changeGrams(1),
-        ),
-        SectionHeader(title: query.isEmpty ? 'Recent' : 'Results'),
-        AppCard(
-          padding: 0,
-          child: DividedColumn(
-            children: [
-              for (final f in ref.watch(_foodResultsProvider))
-                AppTile(
-                  title: f.name,
-                  subtitle: f.portionGrams == null
-                      ? '100 g · ${f.per100g.kcal.round()} kcal'
-                      : '${f.portionLabel} · ${f.forGrams(f.portionGrams!).kcal.round()} kcal',
-                  onTap: () => ctrl.selectFood(f),
-                  trailing: Icon(AppIcons.plus, color: c.brand, size: context.dp(AppSizes.icon)),
-                ),
-            ],
+        FoodSearchField(onChanged: ctrl.setQuery),
+        if (s.food != null)
+          SelectedFoodCard(
+            food: s.food!,
+            grams: s.grams,
+            onMinus: () => ctrl.changeGrams(-1),
+            onPlus: () => ctrl.changeGrams(1),
           ),
+        FormRow(
+          children: [
+            AppButton(
+              label: 'Scan barcode',
+              icon: Icons.qr_code_scanner_rounded,
+              height: 44,
+              variant: AppButtonVariant.outlined,
+              onPressed: () => context.pushReplacement(Routes.barcodeScanner),
+            ),
+            AppButton(
+              label: 'New food',
+              icon: AppIcons.plus,
+              height: 44,
+              variant: AppButtonVariant.outlined,
+              onPressed: () => context.push(Routes.foodForm),
+            ),
+          ],
         ),
+        SectionHeader(title: s.query.isEmpty ? 'Recent and common' : 'Results · ${results.length}'),
+        if (results.isEmpty)
+          Text('No food matches. Create it with "New food".', style: context.text.body.tint(c.textSecondary))
+        else
+          AppCard(
+            padding: 0,
+            child: DividedColumn(
+              children: [
+                for (final f in results.take(30))
+                  AppTile(
+                    title: f.name,
+                    subtitle: f.portionGrams == null
+                        ? '100 g · ${f.per100g.kcal.round()} kcal'
+                        : '${f.portionLabel} · ${f.forGrams(f.portionGrams!).kcal.round()} kcal',
+                    onTap: () => ctrl.selectFood(f),
+                    trailing: f.id == s.food?.id
+                        ? const CheckCircle(checked: true)
+                        : Icon(AppIcons.plus, color: c.brand, size: context.dp(AppSizes.icon)),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
+  }
+
+  /// Recently eaten foods first, then the rest; filtered by the search text.
+  static List<Food> _results(List<Food> all, List<String> recent, String query) {
+    final q = query.trim().toLowerCase();
+    final matching = q.isEmpty ? all : all.where((f) => f.name.toLowerCase().contains(q)).toList();
+    int rank(Food f) {
+      final i = recent.indexOf(f.name);
+      return i < 0 ? recent.length : i;
+    }
+
+    return [...matching]..sort((a, b) => rank(a).compareTo(rank(b)));
   }
 }

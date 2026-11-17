@@ -22,7 +22,7 @@ class PrayerStrip extends StatelessWidget {
                 // Scale down instead of wrapping on narrow phones ("MAGHRIB").
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Eyebrow(t.prayer.label, color: c.onBrand.withValues(alpha: 0.7)),
+                  child: Eyebrow(t.label, color: c.onBrand.withValues(alpha: 0.7)),
                 ),
                 const VGap(2),
                 FittedBox(

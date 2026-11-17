@@ -8,6 +8,7 @@ import '../../../core/ui.dart';
 import '../application/plan_controller.dart';
 import 'widgets/sleep_location_card.dart';
 import 'widgets/time_block_row.dart';
+import 'widgets/week_nav.dart';
 import 'widgets/week_strip.dart';
 
 /// Figma 02 · Plan.
@@ -19,7 +20,8 @@ class PlanScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).languageCode;
     final selected = ref.watch(selectedDayProvider);
     final items = ref.watch(itemsForDayProvider(selected));
-    final week = ref.watch(currentWeekProvider);
+    final week = ref.watch(planWeekProvider);
+    final day = ref.read(selectedDayProvider.notifier);
 
     return AppPage(
       children: [
@@ -29,6 +31,12 @@ class PlanScreen extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              IconBoxButton(
+                icon: Icons.checklist_rounded,
+                tooltip: 'Tasks',
+                onPressed: () => context.go(Routes.tasks),
+              ),
+              const HGap(8),
               IconBoxButton(
                 icon: AppIcons.calendar,
                 tooltip: 'Timetable',
@@ -43,10 +51,18 @@ class PlanScreen extends ConsumerWidget {
             ],
           ),
         ),
+        WeekNav(
+          from: week.first,
+          to: week.last,
+          onPrevious: () => day.shiftWeeks(-1),
+          onNext: () => day.shiftWeeks(1),
+          onToday: day.today,
+          isCurrent: week.any((d) => d.isSameDay(DateTime.now())),
+        ),
         WeekStrip(
           days: week,
           selected: selected,
-          onSelect: ref.read(selectedDayProvider.notifier).select,
+          onSelect: day.select,
           hasItems: (d) => ref.watch(itemsForDayProvider(d)).isNotEmpty,
         ),
         const SleepLocationCard(),
@@ -56,11 +72,19 @@ class PlanScreen extends ConsumerWidget {
           onAction: () => context.go(Routes.weekView),
         ),
         if (items.isEmpty)
-          Text('Nothing planned.', style: context.text.body.tint(context.colors.textSecondary))
+          EmptyCard(
+            title: 'Nothing planned',
+            message: 'Add a study session, an appointment or anything else for this day.',
+            actionLabel: 'Add event',
+            onAction: () => context.push(Routes.addEvent),
+          )
         else
           Column(
             children: [
-              for (final item in items) ...[TimeBlockRow(item: item), const VGap(8)],
+              for (final item in items) ...[
+                TimeBlockRow(item: item, onTap: item.route == null ? null : () => context.push(item.route!)),
+                const VGap(8),
+              ],
             ],
           ),
       ],

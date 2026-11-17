@@ -5,9 +5,10 @@ import '../../../../shared/models/plan_item.dart';
 
 /// Start/end times on the side, the block card on the right.
 class TimeBlockRow extends StatelessWidget {
-  const TimeBlockRow({super.key, required this.item});
+  const TimeBlockRow({super.key, required this.item, this.onTap});
 
   final PlanItem item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class TimeBlockRow extends StatelessWidget {
         const HGap(10),
         Expanded(
           child: AppCard(
+            onTap: onTap,
             padding: 0,
             child: IntrinsicHeight(
               child: Row(

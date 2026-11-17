@@ -1,31 +1,34 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../settings/application/settings_controller.dart';
 import '../domain/prayer.dart';
+import '../domain/prayer_calculator.dart';
+import 'cities.dart';
 
-final prayerRepositoryProvider = Provider<PrayerRepository>((ref) => const FixedPrayerRepository());
+/// The city chosen in Settings / Onboarding, with its coordinates.
+final selectedCityProvider = Provider<City>(
+  (ref) => Cities.byName(ref.watch(settingsProvider.select((s) => s.city))),
+);
 
-/// Source of prayer times. The design calculates them on the phone (offline);
-/// swap [FixedPrayerRepository] for a calculator (e.g. the `adhan` package)
-/// without touching the UI.
+final prayerRepositoryProvider = Provider<PrayerRepository>((ref) {
+  final city = ref.watch(selectedCityProvider);
+  return CalculatedPrayerRepository(PrayerCalculator(latitude: city.lat, longitude: city.lng));
+});
+
+/// Source of prayer times.
 abstract interface class PrayerRepository {
   List<PrayerTime> timesFor(DateTime day);
 }
 
-/// Times from the design (Tunis, late October).
-class FixedPrayerRepository implements PrayerRepository {
-  const FixedPrayerRepository();
+/// Calculated on the phone for the chosen city (works offline). Results are
+/// cached per day because several screens ask for the same dates.
+class CalculatedPrayerRepository implements PrayerRepository {
+  CalculatedPrayerRepository(this._calculator);
 
-  static const _times = {
-    Prayer.fajr: (5, 12),
-    Prayer.dhuhr: (12, 8),
-    Prayer.asr: (15, 21),
-    Prayer.maghrib: (17, 48),
-    Prayer.isha: (19, 12),
-  };
+  final PrayerCalculator _calculator;
+  final _cache = <DateTime, List<PrayerTime>>{};
 
   @override
-  List<PrayerTime> timesFor(DateTime day) => [
-    for (final MapEntry(key: p, value: (h, m)) in _times.entries)
-      PrayerTime(p, DateTime(day.year, day.month, day.day, h, m)),
-  ];
+  List<PrayerTime> timesFor(DateTime day) =>
+      _cache.putIfAbsent(DateTime(day.year, day.month, day.day), () => _calculator.timesFor(day));
 }

@@ -4,8 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/router/routes.dart';
 import '../../../../core/ui.dart';
+import '../../../settings/presentation/widgets/profile_avatar.dart';
 
-/// Date, greeting with the user's name, settings button.
+/// Profile photo, date, greeting with the user's name, settings button.
 class TodayHeader extends StatelessWidget {
   const TodayHeader({super.key, required this.now, required this.name});
 
@@ -27,6 +28,8 @@ class TodayHeader extends StatelessWidget {
       children: [
         Row(
           children: [
+            const ProfileAvatar(size: 56),
+            const HGap(14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +37,7 @@ class TodayHeader extends StatelessWidget {
                   Eyebrow(date),
                   const VGap(4),
                   Text(_greeting, style: context.text.headline),
-                  Text(name, style: context.text.headline),
+                  if (name.isNotEmpty) Text(name, style: context.text.headline),
                 ],
               ),
             ),

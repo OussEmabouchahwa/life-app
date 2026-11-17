@@ -6,9 +6,10 @@ import 'exercise_card.dart';
 
 /// Shows the first exercises and a "+2 more" row that expands the rest.
 class ExerciseList extends StatefulWidget {
-  const ExerciseList({super.key, required this.exercises, this.visible = 3});
+  const ExerciseList({super.key, required this.exercises, required this.lastBest, this.visible = 3});
 
   final List<Exercise> exercises;
+  final Map<String, LoggedSet> lastBest;
   final int visible;
 
   @override
@@ -26,7 +27,10 @@ class _ExerciseListState extends State<ExerciseList> {
 
     return Column(
       children: [
-        for (final e in shown) ...[ExerciseCard(exercise: e), const VGap(12)],
+        for (final e in shown) ...[
+          ExerciseCard(exercise: e, lastBest: widget.lastBest[e.name]),
+          const VGap(12),
+        ],
         if (hidden.isNotEmpty)
           AppCard(
             padding: 12,

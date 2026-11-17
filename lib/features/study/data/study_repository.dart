@@ -1,59 +1,40 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../core/storage/stored_list_controller.dart';
 import '../domain/study_models.dart';
 
-final studyRepositoryProvider = Provider<StudyRepository>((ref) => const StudyRepository());
+/// Exams the user entered. Starts empty: only real data.
+class ExamsController extends StoredListController<Exam> {
+  @override
+  String get storageKey => 'exams_v1';
 
-/// Semester data from the design.
-class StudyRepository {
-  const StudyRepository();
+  @override
+  Exam fromJson(Map<String, dynamic> json) => Exam.fromJson(json);
+}
 
-  List<Exam> upcomingExams(DateTime today) => [
-    Exam(
-      subject: 'Databases',
-      detail: 'Prof. Ben Salah · Room B12',
-      date: today.add(const Duration(days: 5)),
-      when: '09:00 · Written · 1h 30',
-    ),
-    Exam(
-      subject: 'Computer Networks',
-      detail: 'Prof. Trabelsi · Lab 3',
-      date: today.add(const Duration(days: 10)),
-      when: '10:30 · Practical · 2 h',
-    ),
-    Exam(
-      subject: 'Algorithms',
-      detail: 'Prof. Gharbi · Room A04',
-      date: today.add(const Duration(days: 17)),
-      when: '14:00 · Written · 2 h',
-    ),
-  ];
+/// Coefficient, weights and marks per course.
+class GradesController extends StoredListController<SubjectGrades> {
+  @override
+  String get storageKey => 'grades_v1';
 
-  List<RevisionGoal> revisionGoals() => const [
-    RevisionGoal('Databases', 6, 8),
-    RevisionGoal('Computer Networks', 3, 6),
-    RevisionGoal('Algorithms', 2, 6),
-  ];
+  @override
+  SubjectGrades fromJson(Map<String, dynamic> json) => SubjectGrades.fromJson(json);
+}
 
-  RevisionWeek revisionWeek() => const RevisionWeek(8, 5, 6);
+/// Weekly revision hours per course.
+class RevisionGoalsController extends StoredListController<RevisionGoal> {
+  @override
+  String get storageKey => 'revision_goals_v1';
 
-  List<SubjectGrades> grades() => const [
-    SubjectGrades(
-      name: 'Databases',
-      prof: 'Prof. Ben Salah',
-      coef: 3,
-      marks: {Assessment.ds: 14.5, Assessment.tp: 16},
-    ),
-    SubjectGrades(
-      name: 'Networks',
-      prof: 'Prof. Trabelsi',
-      coef: 2.5,
-      marks: {Assessment.ds: 12, Assessment.tp: 15},
-    ),
-    SubjectGrades(name: 'Algorithms', prof: 'Prof. Gharbi', coef: 3, marks: {Assessment.ds: 11}),
-    SubjectGrades(name: 'English', prof: 'Mrs. Hamdi', coef: 1, marks: {Assessment.ds: 17}),
-  ];
+  @override
+  RevisionGoal fromJson(Map<String, dynamic> json) => RevisionGoal.fromJson(json);
 
-  /// Average of the previous term, for the trend tag.
-  double lastTermAverage() => 13.2;
+  /// Replaces all goals at once (the goals form edits every course).
+  void setAll(Map<String, double> hoursByCode) {
+    for (final e in hoursByCode.entries) {
+      if (e.value <= 0) {
+        remove(e.key);
+      } else {
+        save(RevisionGoal(id: e.key, hoursPerWeek: e.value));
+      }
+    }
+  }
 }

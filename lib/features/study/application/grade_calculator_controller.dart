@@ -2,20 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/grade_math.dart';
-import '../domain/study_models.dart';
 import 'study_providers.dart';
 
 @immutable
 class GradeCalculatorState {
-  const GradeCalculatorState({required this.subject, required this.target});
+  const GradeCalculatorState({required this.subjectId, required this.target});
 
-  final SubjectGrades subject;
+  final String? subjectId;
   final double target;
 
-  double? get needed => GradeMath.neededMark(subject, target);
-
-  GradeCalculatorState copyWith({SubjectGrades? subject, double? target}) =>
-      GradeCalculatorState(subject: subject ?? this.subject, target: target ?? this.target);
+  GradeCalculatorState copyWith({String? subjectId, double? target}) =>
+      GradeCalculatorState(subjectId: subjectId ?? this.subjectId, target: target ?? this.target);
 }
 
 final gradeCalculatorProvider = NotifierProvider.autoDispose<GradeCalculatorController, GradeCalculatorState>(
@@ -27,9 +24,16 @@ class GradeCalculatorController extends Notifier<GradeCalculatorState> {
   static const presets = [10.0, 12.0, 14.0, 16.0];
 
   @override
-  GradeCalculatorState build() => GradeCalculatorState(subject: ref.read(gradesProvider).first, target: 14);
+  GradeCalculatorState build() {
+    // Start on a subject that has marks but still an assessment to sit.
+    final subjects = ref.read(subjectsProvider);
+    final pick =
+        subjects.where((s) => s.hasMarks && GradeMath.neededMark(s, 10) != null).firstOrNull ??
+        subjects.firstOrNull;
+    return GradeCalculatorState(subjectId: pick?.id, target: 12);
+  }
 
-  void selectSubject(SubjectGrades s) => state = state.copyWith(subject: s);
+  void selectSubject(String id) => state = state.copyWith(subjectId: id);
 
   /// Snaps to half points like the slider.
   void setTarget(double v) => state = state.copyWith(target: (v * 2).round() / 2);

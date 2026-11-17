@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
@@ -26,25 +25,28 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
     required this.button,
   });
 
-  /// Set to false in tests: google_fonts cannot download fonts there.
-  static bool useGoogleFonts = true;
+  /// Fonts are bundled in assets/fonts; Arabic text falls back to Noto Naskh.
+  static const serifFamily = 'Fraunces', sansFamily = 'Manrope', arabicFamily = 'NotoNaskhArabic';
 
   factory AppTextStyles.create(AppColors c) {
-    TextStyle serif(double size, FontWeight w, {double height = 1.15}) {
-      final s = TextStyle(fontSize: size, fontWeight: w, height: height, color: c.textPrimary);
-      return useGoogleFonts ? GoogleFonts.fraunces(textStyle: s) : s;
-    }
+    TextStyle serif(double size, FontWeight w, {double height = 1.15}) => TextStyle(
+      fontFamily: serifFamily,
+      fontFamilyFallback: const [arabicFamily],
+      fontSize: size,
+      fontWeight: w,
+      height: height,
+      color: c.textPrimary,
+    );
 
-    TextStyle sans(double size, FontWeight w, {double height = 1.35, double spacing = 0}) {
-      final s = TextStyle(
-        fontSize: size,
-        fontWeight: w,
-        height: height,
-        letterSpacing: spacing,
-        color: c.textPrimary,
-      );
-      return useGoogleFonts ? GoogleFonts.manrope(textStyle: s) : s;
-    }
+    TextStyle sans(double size, FontWeight w, {double height = 1.35, double spacing = 0}) => TextStyle(
+      fontFamily: sansFamily,
+      fontFamilyFallback: const [arabicFamily],
+      fontSize: size,
+      fontWeight: w,
+      height: height,
+      letterSpacing: spacing,
+      color: c.textPrimary,
+    );
 
     return AppTextStyles(
       hero: serif(48, FontWeight.w600, height: 1.1),

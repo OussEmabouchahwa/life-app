@@ -17,7 +17,11 @@ class WeatherCard extends StatelessWidget {
       padding: 12,
       child: Row(
         children: [
-          Icon(AppIcons.rain, size: context.dp(24), color: c.textPrimary),
+          Icon(
+            hint.rain ? AppIcons.rain : Icons.wb_sunny_outlined,
+            size: context.dp(24),
+            color: c.textPrimary,
+          ),
           const HGap(12),
           Expanded(
             child: Column(

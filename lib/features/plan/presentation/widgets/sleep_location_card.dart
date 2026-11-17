@@ -13,7 +13,8 @@ class SleepLocationCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
-    final place = ref.watch(settingsProvider.select((s) => s.sleepPlace));
+    final settings = ref.watch(settingsProvider);
+    final place = settings.sleepPlace;
     final coach = ref.watch(coachChoiceProvider);
 
     return AppCard(
@@ -31,7 +32,7 @@ class SleepLocationCard extends ConsumerWidget {
           SegmentedControl<SleepPlace>(
             values: SleepPlace.values,
             selected: place,
-            labelOf: (p) => p.label,
+            labelOf: settings.placeLabel,
             onChanged: ref.read(settingsProvider.notifier).setSleepPlace,
           ),
           const VGap(12),
