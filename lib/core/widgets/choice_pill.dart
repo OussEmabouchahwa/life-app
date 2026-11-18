@@ -40,23 +40,25 @@ class ChoicePill extends StatelessWidget {
         duration: AppDurations.fast,
         height: context.dp(height),
         padding: context.padSym(h: dense ? 10 : 14),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: selected ? c.brand : c.bgCard,
           borderRadius: BorderRadius.circular(context.dp(AppRadius.md)),
           border: Border.all(color: selected ? c.brand : c.line),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: context.dp(15), color: fg),
-              SizedBox(width: context.dp(6)),
+        child: Align(
+          widthFactor: 1,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: context.dp(15), color: fg),
+                SizedBox(width: context.dp(6)),
+              ],
+              Flexible(
+                child: Text(label, style: style, overflow: TextOverflow.ellipsis),
+              ),
             ],
-            Flexible(
-              child: Text(label, style: style, overflow: TextOverflow.ellipsis),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -20,7 +20,9 @@ class AppProgressBar extends StatelessWidget {
     final h = context.dp(height);
     return ClipRRect(
       borderRadius: BorderRadius.circular(h),
+      // Full width of its parent, even inside a centred column.
       child: SizedBox(
+        width: double.infinity,
         height: h,
         child: ColoredBox(
           color: c.bgSunken,
