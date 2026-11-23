@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.nizam.nizam"
-    compileSdk = flutter.compileSdkVersion
+    // 37: required by flutter_local_notifications (compile only; minSdk is unchanged).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

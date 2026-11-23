@@ -49,3 +49,7 @@ app.*.map.json
 
 # Android build output
 /android/build/
+
+# Built app packages
+*.apk
+*.aab
