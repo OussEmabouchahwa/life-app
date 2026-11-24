@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui.dart';
+import '../../../../core/widgets/brand/logo_mark.dart';
 
-/// "N" logo and the step dots.
+/// Logo and the step dots.
 class OnboardingTopBar extends StatelessWidget {
   const OnboardingTopBar({super.key, required this.step, required this.steps});
 
@@ -14,16 +15,7 @@ class OnboardingTopBar extends StatelessWidget {
     final c = context.colors;
     return Row(
       children: [
-        Container(
-          width: context.dp(52),
-          height: context.dp(52),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: c.brand,
-            borderRadius: BorderRadius.circular(context.dp(AppRadius.lg)),
-          ),
-          child: Text('N', style: context.text.display.tint(c.onBrand)),
-        ),
+        LogoMark(size: context.dp(56)),
         const Spacer(),
         for (var i = 0; i < steps; i++) ...[
           if (i > 0) const HGap(6),

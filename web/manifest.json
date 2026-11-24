@@ -1,11 +1,11 @@
 {
-    "name": "nizam",
-    "short_name": "nizam",
+    "name": "Nizam",
+    "short_name": "Nizam",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F2ECE0",
+    "theme_color": "#1D3B33",
+    "description": "Daily planner for classes, prayer, study, training and food, by Oussema Bouchahwa.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

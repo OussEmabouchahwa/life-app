@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/ui.dart';
+import '../../../core/widgets/brand/brand_logo.dart';
 import '../../prayers/data/cities.dart';
 import '../application/settings_controller.dart';
 import 'widgets/language_list.dart';
@@ -116,6 +117,13 @@ class SettingsScreen extends ConsumerWidget {
                 SwitchTile(title: 'Exam countdown', value: s.examCountdown, onChanged: ctrl.setExamCountdown),
               ],
             ),
+          ),
+        ),
+        // About: the brand, at the end of Settings.
+        Padding(
+          padding: context.padSym(v: 12),
+          child: Center(
+            child: BrandLogo(markSize: context.dp(44), dark: Theme.of(context).brightness == Brightness.dark),
           ),
         ),
       ],

@@ -1,5 +1,10 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/logo_dark.png" />
+  <img src="docs/brand/logo_light.png" width="560" alt="Oussema Bouchahwa · Nizam" />
+</picture>
+
 # Nizam
 
 **One daily planner for a Tunisian student's real life: classes, prayer, study, training, food and work.**
@@ -362,10 +367,13 @@ lib/
     ├── onboarding/         Three-step setup
     └── shell/              Tab bar
 assets/
+├── branding/               App icon sources (rendered from the logo widget)
 ├── data/timetable.json     Faculty export
 └── fonts/                  Fraunces, Manrope, Noto Naskh Arabic
 docs/screenshots/           README images
+docs/brand/                 Logo images
 tool/screenshots/           Screenshot generator
+tool/branding/              Logo and icon generator
 ```
 
 ## Tech stack
@@ -391,8 +399,20 @@ tool/screenshots/           Screenshot generator
 - [ ] **Home-screen widgets** (needs native Android and iOS widget code)
 - [ ] **Backup and sync** between devices
 
+## Brand
+
+<img src="docs/brand/icon_sizes.png" width="420" alt="The app icon at launcher sizes" />
+
+The logo is the **OB** monogram (Oussema Bouchahwa) inside a brass ring: a day dial filling up, ending on the app's NOW dot. It is drawn in code (`lib/core/widgets/brand`), so it stays sharp at any size and is reused in the app (onboarding, Settings). To change it, edit the widget and regenerate the images and launcher icons:
+
+```bash
+flutter test tool/branding/generate_branding_test.dart
+dart run flutter_launcher_icons
+```
+
 ## Credits
 
+- Logo and app: Oussema Bouchahwa
 - Design: *Daily Life App – Personal Planner* (Figma)
 - Fonts: [Fraunces](https://fonts.google.com/specimen/Fraunces), [Manrope](https://fonts.google.com/specimen/Manrope), [Noto Naskh Arabic](https://fonts.google.com/noto/specimen/Noto+Naskh+Arabic), SIL Open Font License
 - Data: [Open-Meteo](https://open-meteo.com), [Open Food Facts](https://world.openfoodfacts.org) (ODbL); prayer times checked against [Aladhan](https://aladhan.com)
